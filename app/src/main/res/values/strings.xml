@@ -1,0 +1,65 @@
+<resources>
+    <string name="app_name">Pass Vault</string>
+    <string name="tagline">The only password manager you\'ll ever need.</string>
+    <string name="app_version">v 0.1.2</string>
+
+    <!-- Home -->
+    <string name="search_hint">Search Websites...</string>
+    <string name="empty_state">Click on \'+\' icon below to save your password</string>
+    <string name="end_of_line">end of the line.</string>
+    <string name="no_results">NO RESULTS</string>
+    <string name="no_results_helper">We couldn\'t find anything. Try searching for something else.</string>
+
+    <!-- Add / Update -->
+    <string name="add_new">ADD NEW</string>
+    <string name="update">UPDATE</string>
+    <string name="field_name">NAME</string>
+    <string name="field_url">URL</string>
+    <string name="field_email">ID</string>
+    <string name="field_password">PASSWORD</string>
+    <string name="hint_name">Website/App Name</string>
+    <string name="hint_url">Website/App Link</string>
+    <string name="hint_email">Email / Username</string>
+    <string name="hint_password">Password</string>
+    <string name="generate_new">GENERATE NEW</string>
+    <string name="add_password">ADD PASSWORD</string>
+    <string name="save_changes">SAVE CHANGES</string>
+
+    <!-- Account Detail -->
+    <string name="delete">DELETE</string>
+    <string name="copy_password">Copy password</string>
+
+    <!-- Profile -->
+    <string name="profile">PROFILE</string>
+    <string name="edit_profile">EDIT PROFILE</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="change_master_password">Change Master Password</string>
+    <string name="autofill_settings">Autofill Settings</string>
+    <string name="switch_dark_mode">Switch to Dark Mode</string>
+    <string name="switch_light_mode">Switch to Light Mode</string>
+    <string name="logout">Logout</string>
+    <string name="change_picture">Change Picture</string>
+    <string name="cancel">CANCEL</string>
+    <string name="save">SAVE</string>
+    <string name="coming_soon">Coming soon in v2!</string>
+
+    <!-- Auth -->
+    <string name="biometric_title">Authenticate to Pass Vault</string>
+    <string name="biometric_subtitle">Use your biometric or device PIN</string>
+    <string name="biometric_negative">Exit</string>
+    <string name="no_lock_screen_title">Device Lock Required</string>
+    <string name="no_lock_screen_message">Please enable a screen lock (PIN, pattern, or biometrics) to use Pass Vault.</string>
+
+    <!-- Delete dialog -->
+    <string name="delete_confirm_title">Delete this version?</string>
+    <string name="delete_confirm_msg_has_prev">This version will be removed and the previous version will become current.</string>
+    <string name="delete_confirm_msg_only">This is the only version. The account will be permanently deleted.</string>
+    <string name="confirm">Confirm</string>
+
+    <!-- Logout dialog -->
+    <string name="logout_confirm_title">Log out?</string>
+    <string name="logout_confirm_msg">Your vault data stays encrypted on this device. You\'ll need to re-authenticate next time.</string>
+
+    <!-- Clipboard -->
+    <string name="password_copied">Password copied. Auto-clears in 30s.</string>
+</resources>
