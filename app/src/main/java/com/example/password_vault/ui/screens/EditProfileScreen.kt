@@ -51,6 +51,7 @@ import coil.compose.AsyncImage
 import com.example.password_vault.R
 import com.example.password_vault.ui.theme.BebasFamily
 import com.example.password_vault.ui.theme.CoralAccent
+import com.example.password_vault.ui.theme.White
 import com.example.password_vault.ui.theme.DividerGrey
 import com.example.password_vault.ui.theme.SinkinSansFamily
 import com.example.password_vault.ui.theme.SlatePrimary
@@ -81,18 +82,19 @@ fun EditProfileScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
+                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = stringResource(R.string.edit_profile),
                         fontFamily = BebasFamily,
                         fontSize = 28.sp,
-                        color = SlatePrimary,
+                        color = CoralAccent,
                         letterSpacing = 2.sp
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = SlatePrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = CoralAccent)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -192,7 +194,7 @@ fun EditProfileScreen(
                 if (isSaving) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
-                        color = androidx.compose.ui.graphics.Color.White,
+                        color = White,
                         strokeWidth = 2.dp
                     )
                 } else {

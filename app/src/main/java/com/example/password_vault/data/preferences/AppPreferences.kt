@@ -3,8 +3,8 @@ package com.example.password_vault.data.preferences
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -18,15 +18,19 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 class AppPreferences @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val darkModeKey = booleanPreferencesKey("dark_mode")
+    private val sessionTimeoutKey = longPreferencesKey("session_timeout_ms")
 
-    val isDarkMode: Flow<Boolean> = context.dataStore.data.map { prefs ->
-        prefs[darkModeKey] ?: false
+    val sessionTimeoutMs: Flow<Long> = context.dataStore.data.map { prefs ->
+        prefs[sessionTimeoutKey] ?: DEFAULT_SESSION_TIMEOUT_MS
     }
 
-    suspend fun setDarkMode(enabled: Boolean) {
+    suspend fun setSessionTimeoutMs(ms: Long) {
         context.dataStore.edit { prefs ->
-            prefs[darkModeKey] = enabled
+            prefs[sessionTimeoutKey] = ms
         }
+    }
+
+    companion object {
+        const val DEFAULT_SESSION_TIMEOUT_MS = 300_000L // 5 minutes
     }
 }

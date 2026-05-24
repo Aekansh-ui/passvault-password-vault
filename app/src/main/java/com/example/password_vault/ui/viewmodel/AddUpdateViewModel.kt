@@ -76,7 +76,11 @@ class AddUpdateViewModel @Inject constructor(
             return
         }
 
-        val resolvedName = nameVal.ifEmpty { urlVal.ifEmpty { emailVal } }
+        val resolvedName = if (urlVal.isNotEmpty()) {
+            extractSiteNameFromUrl(urlVal).ifEmpty { emailVal }
+        } else {
+            emailVal
+        }
 
         viewModelScope.launch {
             isLoading.value = true
@@ -95,4 +99,33 @@ class AddUpdateViewModel @Inject constructor(
             }
         }
     }
+}
+
+/**
+ * Extracts the site name from a URL for use as a group label.
+ *
+ * Examples:
+ *   "http://www.github.com/user"  → "github"
+ *   "https://github.com"          → "github"
+ *   "www.github.com"              → "github"
+ *   "github.com"                  → "github"
+ *   "github"                      → "github"
+ */
+internal fun extractSiteNameFromUrl(url: String): String {
+    var s = url.trim()
+
+    // Strip scheme (e.g. "https://", "http://", "ftp://")
+    val schemeEnd = s.indexOf("://")
+    if (schemeEnd != -1) s = s.substring(schemeEnd + 3)
+
+    // Strip leading "www."
+    if (s.startsWith("www.", ignoreCase = true)) s = s.substring(4)
+
+    // Strip path, query string, and fragment
+    s = s.split('/', '?', '#').first()
+
+    // The first label before the first dot is the site name
+    s = s.split('.').first()
+
+    return s.trim()
 }
