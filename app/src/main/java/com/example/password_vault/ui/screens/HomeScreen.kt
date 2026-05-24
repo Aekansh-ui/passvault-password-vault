@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -56,10 +57,12 @@ import com.example.password_vault.R
 import com.example.password_vault.domain.model.GroupSummary
 import com.example.password_vault.ui.theme.BebasFamily
 import com.example.password_vault.ui.theme.CoralAccent
+import com.example.password_vault.ui.theme.GroupCardBg
 import com.example.password_vault.ui.theme.NeutralCard
 import com.example.password_vault.ui.theme.SinkinSansFamily
 import com.example.password_vault.ui.theme.SlatePrimary
 import com.example.password_vault.ui.theme.TextGrey
+import com.example.password_vault.ui.theme.White
 import com.example.password_vault.ui.viewmodel.HomeViewModel
 
 @Composable
@@ -92,9 +95,9 @@ fun HomeScreen(
             Spacer(Modifier.height(16.dp))
 
             // Logo mark
-            LogoMark(size = 32.dp)
+            LogoMark(size = 40.dp)
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(18.dp))
 
             // Search bar
             SearchBar(
@@ -103,7 +106,7 @@ fun HomeScreen(
                 onClear = viewModel::clearSearch
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(30.dp))
 
             when {
                 groups.isEmpty() && query.isBlank() -> {
@@ -225,18 +228,18 @@ fun GroupCard(group: GroupSummary, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(11.dp),
+        colors = CardDefaults.cardColors(containerColor = GroupCardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(43.dp)
+                    .clip(RoundedCornerShape(7.dp))
                     .background(SlatePrimary),
                 contentAlignment = Alignment.Center
             ) {
@@ -244,14 +247,14 @@ fun GroupCard(group: GroupSummary, onClick: () -> Unit) {
                     text = group.name.firstOrNull()?.uppercase() ?: "?",
                     fontFamily = BebasFamily,
                     fontSize = 22.sp,
-                    color = Color.White
+                    color = White
                 )
             }
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(14.dp))
             Text(
                 text = group.name,
                 fontFamily = SinkinSansFamily,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = SlatePrimary
             )
@@ -325,79 +328,79 @@ fun PassVaultBottomNav(
     onAddClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
-    Surface(
-        color = NeutralCard,
-        shadowElevation = 8.dp
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(bottom = 10.dp)
+            .height(85.dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
-        // Row height 72dp; home/profile anchored to bottom, FAB anchored to top
-        // so FAB center (top+32) sits ~8dp above icon centers (bottom-24)
-        Row(
+        Surface(
+            color = NeutralCard,
+            shape = RoundedCornerShape(14.dp),
+            shadowElevation = 6.dp,
             modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .height(72.dp)
+                .fillMaxWidth(0.9f)
+                .height(71.dp)
         ) {
-            // Home — centered in left 40% of screen (icon center = 20% from left)
-            Box(
-                modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight()
-                    .padding(bottom = 4.dp),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                IconButton(onClick = onHomeClick, modifier = Modifier.size(48.dp)) {
-                    Image(
-                        painter = painterResource(R.drawable.icon_home),
-                        contentDescription = "Home",
-                        colorFilter = ColorFilter.tint(
-                            if (currentRoute == "home") CoralAccent else TextGrey
-                        ),
-                        modifier = Modifier.size(26.dp)
-                    )
-                }
-            }
-
-            // Add FAB — centered in middle 20%, anchored flush to top so it sits above icons
-            Box(
-                modifier = Modifier
-                    .weight(0.2f)
-                    .fillMaxHeight(),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                FloatingActionButton(
-                    onClick = onAddClick,
-                    containerColor = CoralAccent,
-                    shape = CircleShape,
-                    modifier = Modifier.size(64.dp)
+            Row(modifier = Modifier.fillMaxSize()) {
+                // Left third — home icon centred between left edge and FAB
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
-                        tint = Color.White,
-                        modifier = Modifier.size(32.dp)
-                    )
+                    IconButton(onClick = onHomeClick) {
+                        Image(
+                            painter = painterResource(R.drawable.icon_home),
+                            contentDescription = "Home",
+                            colorFilter = ColorFilter.tint(
+                                if (currentRoute == "home") CoralAccent else TextGrey
+                            ),
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+                }
+                // Centre third — empty, FAB floats above here
+                Spacer(modifier = Modifier.weight(1f))
+                // Right third — profile icon centred between FAB and right edge
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = onProfileClick) {
+                        Image(
+                            painter = painterResource(R.drawable.icon_user),
+                            contentDescription = "Profile",
+                            colorFilter = ColorFilter.tint(
+                                if (currentRoute == "profile") CoralAccent else TextGrey
+                            ),
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
                 }
             }
+        }
 
-            // Profile — centered in right 40% of screen (icon center = 20% from right)
-            Box(
-                modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight()
-                    .padding(bottom = 4.dp),
-                contentAlignment = Alignment.BottomCenter
-            ) {
-                IconButton(onClick = onProfileClick, modifier = Modifier.size(48.dp)) {
-                    Image(
-                        painter = painterResource(R.drawable.icon_user),
-                        contentDescription = "Profile",
-                        colorFilter = ColorFilter.tint(
-                            if (currentRoute == "profile") CoralAccent else TextGrey
-                        ),
-                        modifier = Modifier.size(26.dp)
-                    )
-                }
-            }
+        FloatingActionButton(
+            onClick = onAddClick,
+            containerColor = CoralAccent,
+            shape = CircleShape,
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.BottomCenter)
+                .offset(y = (-9).dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add",
+                tint = White,
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }

@@ -57,6 +57,10 @@ class AccountViewModel @Inject constructor(
         passwordVisible.value = !passwordVisible.value
     }
 
+    fun setPasswordVisible(visible: Boolean) {
+        passwordVisible.value = visible
+    }
+
     fun selectVersion(version: PasswordVersion) {
         selectedVersionId.value = version.id
         passwordVisible.value = false

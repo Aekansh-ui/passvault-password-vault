@@ -75,6 +75,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.password_vault.R
 import com.example.password_vault.domain.model.PasswordVersion
 import com.example.password_vault.ui.theme.BebasFamily
+import com.example.password_vault.security.showBiometricPrompt
 import com.example.password_vault.ui.theme.CoralAccent
 import com.example.password_vault.ui.theme.DividerGrey
 import com.example.password_vault.ui.theme.SinkinSansFamily
@@ -137,57 +138,20 @@ fun AccountDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
+                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = d.groupName.uppercase(),
                         fontFamily = BebasFamily,
                         fontSize = 28.sp,
-                        color = SlatePrimary,
+                        color = CoralAccent,
                         letterSpacing = 2.sp
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = SlatePrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = CoralAccent)
                     }
-                },
-                actions = {
-                    // Version chip
-                    Box {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .border(1.dp, DividerGrey, RoundedCornerShape(20.dp))
-                                .clickable { showVersionMenu = true }
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            val vLabel = displayVersion?.let { "v${it.versionNo}" } ?: "v?"
-                            Text(
-                                text = "$vLabel ▼",
-                                fontFamily = SinkinSansFamily,
-                                fontSize = 13.sp,
-                                color = SlatePrimary
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = showVersionMenu,
-                            onDismissRequest = { showVersionMenu = false }
-                        ) {
-                            d.versions.forEach { version ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text("v${version.versionNo}", fontFamily = SinkinSansFamily, fontSize = 14.sp, color = SlatePrimary)
-                                    },
-                                    onClick = {
-                                        if (version.id == d.currentVersionId) viewModel.selectLatestVersion()
-                                        else viewModel.selectVersion(version)
-                                        showVersionMenu = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    Spacer(Modifier.width(8.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
@@ -201,7 +165,50 @@ fun AccountDetailScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            Spacer(Modifier.height(8.dp))
+            // Version chip — below header, right-aligned
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Box {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .border(1.dp, DividerGrey, RoundedCornerShape(20.dp))
+                            .clickable { showVersionMenu = true }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        val vLabel = displayVersion?.let { "v${it.versionNo}" } ?: "v?"
+                        Text(
+                            text = "$vLabel ▼",
+                            fontFamily = SinkinSansFamily,
+                            fontSize = 13.sp,
+                            color = SlatePrimary
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showVersionMenu,
+                        onDismissRequest = { showVersionMenu = false }
+                    ) {
+                        d.versions.forEach { version ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text("v${version.versionNo}", fontFamily = SinkinSansFamily, fontSize = 14.sp, color = SlatePrimary)
+                                },
+                                onClick = {
+                                    if (version.id == d.currentVersionId) viewModel.selectLatestVersion()
+                                    else viewModel.selectVersion(version)
+                                    showVersionMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
 
             // Date field
             DetailField(
@@ -248,9 +255,20 @@ fun AccountDetailScreen(
                         color = SlatePrimary
                     )
                 }
-                // Eye toggle
+                // Eye toggle — reveal requires biometric, hide is instant
                 IconButton(
-                    onClick = viewModel::togglePasswordVisible,
+                    onClick = {
+                        if (passwordVisible) {
+                            viewModel.setPasswordVisible(false)
+                        } else {
+                            showBiometricPrompt(
+                                context = context,
+                                title = context.getString(R.string.biometric_reveal_title),
+                                subtitle = context.getString(R.string.biometric_reveal_subtitle),
+                                onSuccess = { viewModel.setPasswordVisible(true) }
+                            )
+                        }
+                    },
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(

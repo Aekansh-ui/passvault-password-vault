@@ -24,6 +24,6 @@ class MainActivity : FragmentActivity() {
 
     override fun onResume() {
         super.onResume()
-        sessionManager.onUserActivity()
+        sessionManager.checkTimeout()
     }
 }

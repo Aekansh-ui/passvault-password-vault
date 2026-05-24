@@ -1,6 +1,14 @@
 package com.example.password_vault.ui.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,8 +21,10 @@ import com.example.password_vault.ui.screens.EditProfileScreen
 import com.example.password_vault.ui.screens.GroupDetailScreen
 import com.example.password_vault.ui.screens.HomeScreen
 import com.example.password_vault.ui.screens.ProfileScreen
+import com.example.password_vault.ui.screens.SettingsScreen
 import com.example.password_vault.ui.screens.SplashScreen
 import com.example.password_vault.ui.theme.PassVaultTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun PassVaultNavGraph(
@@ -22,8 +32,36 @@ fun PassVaultNavGraph(
 ) {
     val navController = rememberNavController()
 
-    PassVaultTheme(darkTheme = false) {
-        NavHost(navController = navController, startDestination = Screen.Splash.route) {
+    val sessionExpired by sessionManager.sessionExpired.collectAsState()
+    LaunchedEffect(sessionExpired) {
+        if (sessionExpired) {
+            navController.navigate(Screen.Splash.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(30_000L)
+            sessionManager.checkTimeout()
+        }
+    }
+
+    PassVaultTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    while (true) {
+                        awaitPointerEventScope {
+                            awaitPointerEvent(PointerEventPass.Initial)
+                            sessionManager.onUserActivity()
+                        }
+                    }
+                }
+        ) {
+            NavHost(navController = navController, startDestination = Screen.Splash.route) {
 
             composable(Screen.Splash.route) {
                 SplashScreen(
@@ -113,12 +151,18 @@ fun PassVaultNavGraph(
                             popUpTo(Screen.Home.route) { inclusive = false }
                         }
                     },
-                    onNavigateEditProfile = { navController.navigate(Screen.EditProfile.route) }
+                    onNavigateEditProfile = { navController.navigate(Screen.EditProfile.route) },
+                    onNavigateSettings = { navController.navigate(Screen.Settings.route) }
                 )
             }
 
             composable(Screen.EditProfile.route) {
                 EditProfileScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Screen.Settings.route) {
+                SettingsScreen(onBack = { navController.popBackStack() })
+            }
             }
         }
     }

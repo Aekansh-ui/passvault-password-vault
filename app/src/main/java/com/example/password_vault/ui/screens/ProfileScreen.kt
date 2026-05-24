@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -57,6 +58,7 @@ import com.example.password_vault.ui.viewmodel.ProfileViewModel
 fun ProfileScreen(
     onNavigateHome: () -> Unit,
     onNavigateEditProfile: () -> Unit,
+    onNavigateSettings: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val profile by viewModel.profile.collectAsState()
@@ -80,12 +82,13 @@ fun ProfileScreen(
         },
         topBar = {
             TopAppBar(
+                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = stringResource(R.string.profile),
                         fontFamily = BebasFamily,
                         fontSize = 28.sp,
-                        color = SlatePrimary,
+                        color = CoralAccent,
                         letterSpacing = 2.sp
                     )
                 },
@@ -144,6 +147,12 @@ fun ProfileScreen(
                 icon = Icons.Default.Edit,
                 label = stringResource(R.string.update_profile),
                 onClick = onNavigateEditProfile
+            )
+
+            ProfileMenuItem(
+                icon = Icons.Default.Settings,
+                label = stringResource(R.string.settings),
+                onClick = onNavigateSettings
             )
 
             Spacer(Modifier.height(24.dp))

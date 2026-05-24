@@ -43,6 +43,7 @@ import com.example.password_vault.ui.theme.CoralAccent
 import com.example.password_vault.ui.theme.SinkinSansFamily
 import com.example.password_vault.ui.theme.SlatePrimary
 import com.example.password_vault.ui.theme.TextGrey
+import com.example.password_vault.ui.theme.White
 import com.example.password_vault.ui.viewmodel.GroupViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,12 +60,13 @@ fun GroupDetailScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
+                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = groupName.uppercase(),
                         fontFamily = BebasFamily,
                         fontSize = 28.sp,
-                        color = SlatePrimary,
+                        color = CoralAccent,
                         letterSpacing = 2.sp
                     )
                 },
@@ -73,7 +75,7 @@ fun GroupDetailScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = SlatePrimary
+                            tint = CoralAccent
                         )
                     }
                 },
@@ -89,7 +91,7 @@ fun GroupDetailScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
+            contentPadding = PaddingValues(top = 15.dp, bottom = 16.dp)
         ) {
             items(accounts) { account ->
                 AccountRowCard(account = account, onClick = { onAccountClick(account.id) })
@@ -105,7 +107,7 @@ fun AccountRowCard(account: AccountRow, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
