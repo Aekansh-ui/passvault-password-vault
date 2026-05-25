@@ -27,6 +27,9 @@ class HomeViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val dueSoonGroupIds: StateFlow<Set<Long>> = repo.observeDueSoonGroupIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
     fun onSearchChange(query: String) { searchQuery.value = query }
     fun clearSearch() { searchQuery.value = "" }
 }

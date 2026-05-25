@@ -43,8 +43,8 @@ fun PassVaultNavGraph(
 
     LaunchedEffect(Unit) {
         while (true) {
-            delay(30_000L)
             sessionManager.checkTimeout()
+            delay(15_000L)
         }
     }
 
@@ -80,7 +80,7 @@ fun PassVaultNavGraph(
                     onGroupClick = { groupId, groupName ->
                         navController.navigate(Screen.Group.createRoute(groupId, groupName))
                     },
-                    onAddClick = { navController.navigate(Screen.AddPassword.route) },
+                    onAddClick = { navController.navigate(Screen.AddPassword.createRoute()) },
                     onProfileClick = { navController.navigate(Screen.Profile.route) }
                 )
             }
@@ -98,6 +98,9 @@ fun PassVaultNavGraph(
                     onBack = { navController.popBackStack() },
                     onAccountClick = { accountId ->
                         navController.navigate(Screen.AccountDetail.createRoute(accountId))
+                    },
+                    onAddClick = {
+                        navController.navigate(Screen.AddPassword.createRoute(groupName))
                     }
                 )
             }
@@ -119,7 +122,12 @@ fun PassVaultNavGraph(
                 )
             }
 
-            composable(Screen.AddPassword.route) {
+            composable(
+                route = Screen.AddPassword.route,
+                arguments = listOf(
+                    navArgument("prefillUrl") { type = NavType.StringType; nullable = true; defaultValue = null }
+                )
+            ) {
                 AddUpdateScreen(
                     isUpdate = false,
                     onBack = { navController.popBackStack() },

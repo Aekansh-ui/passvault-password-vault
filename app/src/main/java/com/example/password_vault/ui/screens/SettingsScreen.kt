@@ -1,5 +1,8 @@
 package com.example.password_vault.ui.screens
 
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,23 +31,29 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.password_vault.R
+import com.example.password_vault.security.showBiometricPrompt
 import com.example.password_vault.ui.theme.BebasFamily
 import com.example.password_vault.ui.theme.CoralAccent
 import com.example.password_vault.ui.theme.DividerGrey
@@ -50,7 +61,14 @@ import com.example.password_vault.ui.theme.GroupCardBg
 import com.example.password_vault.ui.theme.SinkinSansFamily
 import com.example.password_vault.ui.theme.SlatePrimary
 import com.example.password_vault.ui.theme.TextGrey
+import com.example.password_vault.ui.viewmodel.SettingsEvent
 import com.example.password_vault.ui.viewmodel.SettingsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private val TIMEOUT_OPTIONS = listOf(
     60_000L     to "1 minute",
@@ -71,11 +89,84 @@ fun SettingsScreen(
     val currentLabel = TIMEOUT_OPTIONS.firstOrNull { it.first == currentTimeoutMs }?.second
         ?: "5 minutes (default)"
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Holds generated JSON until the file-creation dialog resolves
+    var pendingBackupJson by remember { mutableStateOf<String?>(null) }
+
+    val createFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        val json = pendingBackupJson ?: return@rememberLauncherForActivityResult
+        pendingBackupJson = null
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch(Dispatchers.IO) {
+            try {
+                context.contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray(Charsets.UTF_8)) }
+                withContext(Dispatchers.Main) {
+                    snackbarHostState.showSnackbar("Backup saved successfully.")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    snackbarHostState.showSnackbar("Failed to write backup file.")
+                }
+            }
+        }
+    }
+
+    val openFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch(Dispatchers.IO) {
+            try {
+                val json = context.contentResolver.openInputStream(uri)?.use {
+                    it.readBytes().toString(Charsets.UTF_8)
+                }
+                if (json != null) {
+                    withContext(Dispatchers.Main) { viewModel.restore(json) }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        snackbarHostState.showSnackbar("Could not read the selected file.")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    snackbarHostState.showSnackbar("Failed to read backup file.")
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(viewModel.events) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is SettingsEvent.BackupReady -> {
+                    pendingBackupJson = event.json
+                    val filename = "passvault_backup_${
+                        SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                    }.json"
+                    createFileLauncher.launch(filename)
+                }
+                is SettingsEvent.RestoreDone -> {
+                    val r = event.result
+                    snackbarHostState.showSnackbar(
+                        "Restored ${r.imported} account${if (r.imported != 1) "s" else ""}." +
+                        if (r.skipped > 0) " Skipped ${r.skipped} duplicate${if (r.skipped != 1) "s" else ""}." else ""
+                    )
+                }
+                is SettingsEvent.Error -> snackbarHostState.showSnackbar(event.msg)
+            }
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = stringResource(R.string.settings),
@@ -109,7 +200,9 @@ fun SettingsScreen(
         ) {
             Spacer(Modifier.height(8.dp))
 
+            // Session timeout
             SettingsRow(
+                icon = { Icon(Icons.Default.Timer, null, tint = CoralAccent, modifier = Modifier.padding(end = 8.dp)) },
                 label = stringResource(R.string.session_timeout_label),
                 description = stringResource(R.string.session_timeout_desc)
             ) {
@@ -119,6 +212,37 @@ fun SettingsScreen(
                 )
             }
 
+            Spacer(Modifier.height(12.dp))
+
+            // Backup
+            SettingsRow(
+                icon = { Icon(Icons.Default.FileDownload, null, tint = CoralAccent, modifier = Modifier.padding(end = 8.dp)) },
+                label = stringResource(R.string.backup_label),
+                description = stringResource(R.string.backup_desc)
+            ) {
+                ActionButton(label = stringResource(R.string.backup_action)) {
+                    showBiometricPrompt(
+                        context = context,
+                        title = context.getString(R.string.biometric_backup_title),
+                        subtitle = context.getString(R.string.biometric_backup_subtitle),
+                        onSuccess = { viewModel.prepareBackup() }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // Restore
+            SettingsRow(
+                icon = { Icon(Icons.Default.FileUpload, null, tint = CoralAccent, modifier = Modifier.padding(end = 8.dp)) },
+                label = stringResource(R.string.restore_label),
+                description = stringResource(R.string.restore_desc)
+            ) {
+                ActionButton(label = stringResource(R.string.restore_action)) {
+                    openFileLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
+                }
+            }
+
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -126,6 +250,7 @@ fun SettingsScreen(
 
 @Composable
 fun SettingsRow(
+    icon: @Composable () -> Unit,
     label: String,
     description: String,
     control: @Composable () -> Unit
@@ -138,12 +263,7 @@ fun SettingsRow(
             .padding(horizontal = 14.dp, vertical = 14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.Timer,
-                contentDescription = null,
-                tint = CoralAccent,
-                modifier = Modifier.padding(end = 8.dp)
-            )
+            icon()
             Text(
                 text = label,
                 fontFamily = BebasFamily,
@@ -161,6 +281,19 @@ fun SettingsRow(
         )
         Spacer(Modifier.height(12.dp))
         control()
+    }
+}
+
+@Composable
+private fun ActionButton(label: String, onClick: () -> Unit) {
+    androidx.compose.material3.OutlinedButton(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = CoralAccent),
+        border = androidx.compose.foundation.BorderStroke(1.dp, CoralAccent),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(label, fontFamily = SinkinSansFamily, fontSize = 14.sp)
     }
 }
 

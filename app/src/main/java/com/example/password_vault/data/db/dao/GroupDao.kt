@@ -30,4 +30,7 @@ interface GroupDao {
 
     @Query("SELECT COUNT(*) FROM accounts WHERE group_id = :groupId")
     suspend fun accountCount(groupId: Long): Int
+
+    @Query("SELECT * FROM groups ORDER BY name_normalized ASC")
+    suspend fun getAll(): List<GroupEntity>
 }

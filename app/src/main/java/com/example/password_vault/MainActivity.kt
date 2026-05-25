@@ -1,8 +1,8 @@
 package com.example.password_vault
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentActivity
 import com.example.password_vault.security.SessionManager
 import com.example.password_vault.ui.navigation.PassVaultNavGraph
@@ -16,7 +16,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        requestNotificationPermissionIfNeeded()
         setContent {
             PassVaultNavGraph(sessionManager = sessionManager)
         }
@@ -25,5 +25,13 @@ class MainActivity : FragmentActivity() {
     override fun onResume() {
         super.onResume()
         sessionManager.checkTimeout()
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 0)
+        }
     }
 }
