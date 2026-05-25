@@ -28,5 +28,8 @@ data class AccountEntity(
     @ColumnInfo(name = "website_url") val websiteUrl: String,
     @ColumnInfo(name = "current_version_id") val currentVersionId: Long = 0,
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis()
+    @ColumnInfo(name = "updated_at") val updatedAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "reminder_enabled") val reminderEnabled: Boolean = false,
+    @ColumnInfo(name = "reminder_unit") val reminderUnit: String? = null,
+    @ColumnInfo(name = "reminder_value") val reminderValue: Int = 0
 )

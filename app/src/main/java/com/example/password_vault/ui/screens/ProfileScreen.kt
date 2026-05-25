@@ -82,7 +82,6 @@ fun ProfileScreen(
         },
         topBar = {
             TopAppBar(
-                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = stringResource(R.string.profile),
@@ -100,70 +99,76 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(16.dp))
-
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(96.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .border(3.dp, CoralAccent, RoundedCornerShape(12.dp))
-                    .background(DividerGrey),
-                contentAlignment = Alignment.Center
+                    .weight(1f)
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (profileImageBitmap != null) {
-                    Image(
-                        bitmap = profileImageBitmap,
-                        contentDescription = "Profile photo",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    Icon(Icons.Default.Person, null, tint = SlatePrimary, modifier = Modifier.size(48.dp))
+                Spacer(Modifier.height(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(96.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(3.dp, CoralAccent, RoundedCornerShape(12.dp))
+                        .background(DividerGrey),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (profileImageBitmap != null) {
+                        Image(
+                            bitmap = profileImageBitmap,
+                            contentDescription = "Profile photo",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(Icons.Default.Person, null, tint = SlatePrimary, modifier = Modifier.size(48.dp))
+                    }
                 }
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    text = profile.displayName.ifBlank { "Your Name" },
+                    fontFamily = BebasFamily,
+                    fontSize = 22.sp,
+                    color = SlatePrimary,
+                    letterSpacing = 1.sp
+                )
+                Text(
+                    text = profile.username.ifBlank { "username" },
+                    fontFamily = SinkinSansFamily,
+                    fontSize = 14.sp,
+                    color = TextGrey
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+                ProfileMenuItem(
+                    icon = Icons.Default.Edit,
+                    label = stringResource(R.string.update_profile),
+                    onClick = onNavigateEditProfile
+                )
+
+                ProfileMenuItem(
+                    icon = Icons.Default.Settings,
+                    label = stringResource(R.string.settings),
+                    onClick = onNavigateSettings
+                )
             }
-
-            Spacer(Modifier.height(12.dp))
-
-            Text(
-                text = profile.displayName.ifBlank { "Your Name" },
-                fontFamily = BebasFamily,
-                fontSize = 22.sp,
-                color = SlatePrimary,
-                letterSpacing = 1.sp
-            )
-            Text(
-                text = profile.username.ifBlank { "username" },
-                fontFamily = SinkinSansFamily,
-                fontSize = 14.sp,
-                color = TextGrey
-            )
-
-            Spacer(Modifier.height(24.dp))
-
-            ProfileMenuItem(
-                icon = Icons.Default.Edit,
-                label = stringResource(R.string.update_profile),
-                onClick = onNavigateEditProfile
-            )
-
-            ProfileMenuItem(
-                icon = Icons.Default.Settings,
-                label = stringResource(R.string.settings),
-                onClick = onNavigateSettings
-            )
-
-            Spacer(Modifier.height(24.dp))
 
             Text(
                 text = stringResource(R.string.app_version),
                 fontFamily = SinkinSansFamily,
                 fontSize = 12.sp,
-                color = TextGrey
+                color = TextGrey,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
-            Spacer(Modifier.height(16.dp))
         }
     }
 }

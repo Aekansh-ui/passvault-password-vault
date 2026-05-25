@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +75,7 @@ fun HomeScreen(
 ) {
     val groups by viewModel.groups.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
+    val dueSoonGroupIds by viewModel.dueSoonGroupIds.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -95,7 +97,7 @@ fun HomeScreen(
             Spacer(Modifier.height(16.dp))
 
             // Logo mark
-            LogoMark(size = 40.dp)
+            LogoMark(size = 40.dp, modifier = Modifier.align(Alignment.CenterHorizontally))
 
             Spacer(Modifier.height(18.dp))
 
@@ -137,7 +139,11 @@ fun HomeScreen(
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
                         items(groups) { group ->
-                            GroupCard(group = group, onClick = { onGroupClick(group.id, group.name) })
+                            GroupCard(
+                                group = group,
+                                isDueSoon = group.id in dueSoonGroupIds,
+                                onClick = { onGroupClick(group.id, group.name) }
+                            )
                         }
                         if (query.isNotBlank()) {
                             item {
@@ -223,10 +229,16 @@ fun SearchBar(
 }
 
 @Composable
-fun GroupCard(group: GroupSummary, onClick: () -> Unit) {
+fun GroupCard(group: GroupSummary, isDueSoon: Boolean = false, onClick: () -> Unit) {
+    val borderMod = if (isDueSoon) {
+        Modifier.border(2.dp, Color.Red, RoundedCornerShape(11.dp))
+    } else {
+        Modifier
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .then(borderMod)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(11.dp),
         colors = CardDefaults.cardColors(containerColor = GroupCardBg),
@@ -390,6 +402,12 @@ fun PassVaultBottomNav(
             onClick = onAddClick,
             containerColor = CoralAccent,
             shape = CircleShape,
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp,
+                hoveredElevation = 0.dp,
+                focusedElevation = 0.dp
+            ),
             modifier = Modifier
                 .size(70.dp)
                 .align(Alignment.BottomCenter)

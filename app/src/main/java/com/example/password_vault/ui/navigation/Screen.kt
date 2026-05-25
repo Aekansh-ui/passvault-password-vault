@@ -12,7 +12,10 @@ sealed class Screen(val route: String) {
     object AccountDetail : Screen("account/{accountId}") {
         fun createRoute(accountId: Long) = "account/$accountId"
     }
-    object AddPassword : Screen("add")
+    object AddPassword : Screen("add?prefillUrl={prefillUrl}") {
+        fun createRoute(prefillUrl: String = "") =
+            if (prefillUrl.isBlank()) "add" else "add?prefillUrl=${Uri.encode(prefillUrl)}"
+    }
     object UpdatePassword : Screen("update/{accountId}") {
         fun createRoute(accountId: Long) = "update/$accountId"
     }

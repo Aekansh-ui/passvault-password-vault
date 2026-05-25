@@ -30,6 +30,7 @@ object DatabaseModule {
         val factory = SupportFactory(passphrase)
         return Room.databaseBuilder(context, VaultDatabase::class.java, "vault.db")
             .openHelperFactory(factory)
+            .addMigrations(VaultDatabase.MIGRATION_1_2)
             .build()
     }
 

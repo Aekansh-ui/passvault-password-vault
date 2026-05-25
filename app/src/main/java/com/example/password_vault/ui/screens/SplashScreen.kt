@@ -124,10 +124,10 @@ fun SplashScreen(
 }
 
 @Composable
-fun LogoMark(size: Dp = 32.dp) {
+fun LogoMark(size: Dp = 32.dp, modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(R.drawable.ic_logo),
         contentDescription = "Pass Vault logo",
-        modifier = Modifier.size(size)
+        modifier = modifier.size(size)
     )
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.password_vault.data.repository.AddResult
 import com.example.password_vault.data.repository.VaultRepository
 import com.example.password_vault.domain.model.AccountDetail
+import com.example.password_vault.util.UNIT_MONTHS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,6 @@ class AddUpdateViewModel @Inject constructor(
     savedState: SavedStateHandle
 ) : ViewModel() {
 
-    // null = Add mode; non-null = Update mode
     val accountId: Long? = savedState.get<Long>("accountId")?.takeIf { it > 0 }
 
     val existingDetail: StateFlow<AccountDetail?> = if (accountId != null) {
@@ -38,23 +38,33 @@ class AddUpdateViewModel @Inject constructor(
         MutableStateFlow(null)
     }
 
-    val name = MutableStateFlow("")
-    val url = MutableStateFlow("")
-    val email = MutableStateFlow("")
-    val password = MutableStateFlow("")
+    val url = MutableStateFlow(
+        if (accountId == null) savedState.get<String>("prefillUrl").orEmpty() else ""
+    )
+    val email          = MutableStateFlow("")
+    val password       = MutableStateFlow("")
     val passwordVisible = MutableStateFlow(false)
-    val isLoading = MutableStateFlow(false)
+    val isLoading      = MutableStateFlow(false)
+
+    // Reminder state
+    val reminderEnabled = MutableStateFlow(false)
+    val reminderUnit    = MutableStateFlow(UNIT_MONTHS)
+    val reminderValue   = MutableStateFlow(1)
+
+    private var prefilled = false
 
     private val _events = MutableSharedFlow<FormEvent>()
     val events: SharedFlow<FormEvent> = _events
 
     fun prefillFromDetail(detail: AccountDetail) {
-        if (name.value.isEmpty()) {
-            name.value = detail.groupName
-            url.value = detail.websiteUrl
-            email.value = detail.username
-            password.value = detail.currentVersion?.password ?: ""
-        }
+        if (prefilled) return
+        prefilled = true
+        url.value     = detail.websiteUrl
+        email.value   = detail.username
+        password.value = detail.currentVersion?.password ?: ""
+        reminderEnabled.value = detail.reminderEnabled
+        reminderUnit.value    = detail.reminderUnit ?: UNIT_MONTHS
+        reminderValue.value   = detail.reminderValue.takeIf { it > 0 } ?: 1
     }
 
     fun generatePassword() {
@@ -66,10 +76,9 @@ class AddUpdateViewModel @Inject constructor(
     }
 
     fun submit() {
-        val nameVal = name.value.trim()
-        val urlVal = url.value.trim()
+        val urlVal   = url.value.trim()
         val emailVal = email.value.trim()
-        val passVal = password.value
+        val passVal  = password.value
 
         if (emailVal.isEmpty() || passVal.isEmpty()) {
             viewModelScope.launch { _events.emit(FormEvent.Error("ID and password are required.")) }
@@ -82,16 +91,26 @@ class AddUpdateViewModel @Inject constructor(
             emailVal
         }
 
+        val remEnabled = reminderEnabled.value
+        val remUnit    = if (remEnabled) reminderUnit.value else null
+        val remValue   = if (remEnabled) reminderValue.value else 0
+
         viewModelScope.launch {
             isLoading.value = true
             try {
                 if (accountId == null) {
-                    when (val result = repo.addCredential(resolvedName, urlVal, emailVal, passVal)) {
-                        is AddResult.Created -> _events.emit(FormEvent.Success)
+                    when (val result = repo.addCredential(
+                        resolvedName, urlVal, emailVal, passVal,
+                        remEnabled, remUnit, remValue
+                    )) {
+                        is AddResult.Created      -> _events.emit(FormEvent.Success)
                         is AddResult.DuplicateFound -> _events.emit(FormEvent.DuplicateFound(result.accountId))
                     }
                 } else {
-                    repo.updateCredential(accountId, urlVal, emailVal, passVal)
+                    repo.updateCredential(
+                        accountId, urlVal, emailVal, passVal,
+                        remEnabled, remUnit, remValue
+                    )
                     _events.emit(FormEvent.Success)
                 }
             } finally {
@@ -101,31 +120,12 @@ class AddUpdateViewModel @Inject constructor(
     }
 }
 
-/**
- * Extracts the site name from a URL for use as a group label.
- *
- * Examples:
- *   "http://www.github.com/user"  → "github"
- *   "https://github.com"          → "github"
- *   "www.github.com"              → "github"
- *   "github.com"                  → "github"
- *   "github"                      → "github"
- */
 internal fun extractSiteNameFromUrl(url: String): String {
     var s = url.trim()
-
-    // Strip scheme (e.g. "https://", "http://", "ftp://")
     val schemeEnd = s.indexOf("://")
     if (schemeEnd != -1) s = s.substring(schemeEnd + 3)
-
-    // Strip leading "www."
     if (s.startsWith("www.", ignoreCase = true)) s = s.substring(4)
-
-    // Strip path, query string, and fragment
     s = s.split('/', '?', '#').first()
-
-    // The first label before the first dot is the site name
     s = s.split('.').first()
-
     return s.trim()
 }

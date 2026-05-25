@@ -82,7 +82,6 @@ fun EditProfileScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = stringResource(R.string.edit_profile),

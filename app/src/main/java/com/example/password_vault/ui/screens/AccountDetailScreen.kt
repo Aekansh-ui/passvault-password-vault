@@ -138,7 +138,6 @@ fun AccountDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = d.groupName.uppercase(),

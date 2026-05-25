@@ -36,4 +36,7 @@ interface PasswordVersionDao {
 
     @Query("SELECT MAX(version_no) FROM password_versions WHERE account_id = :accountId")
     suspend fun maxVersionNo(accountId: Long): Int?
+
+    @Query("SELECT * FROM password_versions ORDER BY account_id ASC, version_no DESC")
+    suspend fun getAll(): List<PasswordVersionEntity>
 }

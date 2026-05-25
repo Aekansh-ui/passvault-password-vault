@@ -28,4 +28,13 @@ interface AccountDao {
 
     @Query("DELETE FROM accounts WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM accounts WHERE reminder_enabled = 1")
+    suspend fun getAccountsWithReminder(): List<AccountEntity>
+
+    @Query("SELECT * FROM accounts WHERE reminder_enabled = 1")
+    fun observeAccountsWithReminder(): Flow<List<AccountEntity>>
+
+    @Query("SELECT * FROM accounts ORDER BY group_id ASC")
+    suspend fun getAll(): List<AccountEntity>
 }

@@ -1,7 +1,9 @@
 package com.example.password_vault.ui.screens
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -9,18 +11,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.password_vault.domain.model.AccountRow
+import com.example.password_vault.util.isDueSoon
 import com.example.password_vault.ui.theme.BebasFamily
 import com.example.password_vault.ui.theme.CoralAccent
 import com.example.password_vault.ui.theme.SinkinSansFamily
@@ -52,15 +61,49 @@ fun GroupDetailScreen(
     groupName: String,
     onBack: () -> Unit,
     onAccountClick: (Long) -> Unit,
+    onAddClick: () -> Unit,
     viewModel: GroupViewModel = hiltViewModel()
 ) {
     val accounts by viewModel.accounts.collectAsState()
+    val query by viewModel.searchQuery.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(bottom = 10.dp)
+                    .height(85.dp),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                FloatingActionButton(
+                    onClick = onAddClick,
+                    containerColor = CoralAccent,
+                    shape = CircleShape,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp,
+                        hoveredElevation = 0.dp,
+                        focusedElevation = 0.dp
+                    ),
+                    modifier = Modifier
+                        .size(70.dp)
+                        .align(Alignment.BottomCenter)
+                        .offset(y = (-9).dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add",
+                        tint = White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        },
         topBar = {
             TopAppBar(
-                modifier = Modifier.padding(top = 30.dp),
                 title = {
                     Text(
                         text = groupName.uppercase(),
@@ -85,26 +128,60 @@ fun GroupDetailScreen(
             )
         }
     ) { padding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 15.dp, bottom = 16.dp)
+                .padding(horizontal = 16.dp)
         ) {
-            items(accounts) { account ->
-                AccountRowCard(account = account, onClick = { onAccountClick(account.id) })
+            Spacer(Modifier.height(16.dp))
+
+            SearchBar(
+                query = query,
+                onQueryChange = viewModel::onSearchChange,
+                onClear = viewModel::clearSearch
+            )
+
+            Spacer(Modifier.height(30.dp))
+
+            when {
+                accounts.isEmpty() && query.isNotBlank() -> {
+                    NoResultsState()
+                }
+                else -> {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        items(accounts) { account ->
+                            val dueSoon = account.reminderEnabled &&
+                                account.reminderUnit != null &&
+                                account.reminderValue > 0 &&
+                                isDueSoon(account.lastChangedAt, account.reminderUnit, account.reminderValue)
+                            AccountRowCard(
+                                account = account,
+                                isDueSoon = dueSoon,
+                                onClick = { onAccountClick(account.id) }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun AccountRowCard(account: AccountRow, onClick: () -> Unit) {
+fun AccountRowCard(account: AccountRow, isDueSoon: Boolean = false, onClick: () -> Unit) {
+    val borderModifier = if (isDueSoon) {
+        Modifier.border(2.dp, Color.Red, RoundedCornerShape(12.dp))
+    } else {
+        Modifier
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .then(borderModifier)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = White),

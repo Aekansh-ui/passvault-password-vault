@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Pass Vault</string>
     <string name="tagline">The only password manager you\'ll ever need.</string>
-    <string name="app_version">v 0.1.2</string>
+    <string name="app_version">v 2.0</string>
 
     <!-- Home -->
     <string name="search_hint">Search Websites...</string>
@@ -17,7 +17,6 @@
     <string name="field_url">URL</string>
     <string name="field_email">ID</string>
     <string name="field_password">PASSWORD</string>
-    <string name="hint_name">Website/App Name</string>
     <string name="hint_url">Website</string>
     <string name="hint_email">Email / Username</string>
     <string name="hint_password">Password</string>
@@ -36,10 +35,16 @@
     <string name="settings">Settings</string>
     <string name="session_timeout_label">SESSION TIMEOUT</string>
     <string name="session_timeout_desc">Auto-lock the vault when idle for the selected duration.</string>
+    <string name="backup_label">BACKUP</string>
+    <string name="backup_desc">Export all your vault data to an encrypted JSON file.</string>
+    <string name="backup_action">EXPORT BACKUP</string>
+    <string name="restore_label">RESTORE</string>
+    <string name="restore_desc">Import a previously exported JSON backup file.</string>
+    <string name="restore_action">IMPORT BACKUP</string>
+    <string name="biometric_backup_title">Authenticate to Backup</string>
+    <string name="biometric_backup_subtitle">Verify your identity before exporting vault data</string>
     <string name="change_master_password">Change Master Password</string>
     <string name="autofill_settings">Autofill Settings</string>
-    <string name="switch_dark_mode">Switch to Dark Mode</string>
-    <string name="switch_light_mode">Switch to Light Mode</string>
     <string name="logout">Logout</string>
     <string name="change_picture">Change Picture</string>
     <string name="cancel">CANCEL</string>
