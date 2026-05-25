@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.password_vault.security.SessionManager
+import com.example.password_vault.ui.screens.AboutScreen
 import com.example.password_vault.ui.screens.AccountDetailScreen
 import com.example.password_vault.ui.screens.AddUpdateScreen
 import com.example.password_vault.ui.screens.EditProfileScreen
@@ -160,7 +161,8 @@ fun PassVaultNavGraph(
                         }
                     },
                     onNavigateEditProfile = { navController.navigate(Screen.EditProfile.route) },
-                    onNavigateSettings = { navController.navigate(Screen.Settings.route) }
+                    onNavigateSettings = { navController.navigate(Screen.Settings.route) },
+                    onNavigateAbout = { navController.navigate(Screen.About.route) }
                 )
             }
 
@@ -170,6 +172,10 @@ fun PassVaultNavGraph(
 
             composable(Screen.Settings.route) {
                 SettingsScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Screen.About.route) {
+                AboutScreen(onBack = { navController.popBackStack() })
             }
             }
         }

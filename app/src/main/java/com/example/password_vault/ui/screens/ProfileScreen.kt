@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,6 +60,7 @@ fun ProfileScreen(
     onNavigateHome: () -> Unit,
     onNavigateEditProfile: () -> Unit,
     onNavigateSettings: () -> Unit,
+    onNavigateAbout: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val profile by viewModel.profile.collectAsState()
@@ -156,6 +158,12 @@ fun ProfileScreen(
                     icon = Icons.Default.Settings,
                     label = stringResource(R.string.settings),
                     onClick = onNavigateSettings
+                )
+
+                ProfileMenuItem(
+                    icon = Icons.Default.Info,
+                    label = stringResource(R.string.about_app),
+                    onClick = onNavigateAbout
                 )
             }
 

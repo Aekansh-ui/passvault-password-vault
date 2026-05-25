@@ -33,6 +33,7 @@
     <string name="edit_profile">EDIT PROFILE</string>
     <string name="update_profile">Update Profile</string>
     <string name="settings">Settings</string>
+    <string name="about_app">About App</string>
     <string name="session_timeout_label">SESSION TIMEOUT</string>
     <string name="session_timeout_desc">Auto-lock the vault when idle for the selected duration.</string>
     <string name="backup_label">BACKUP</string>
