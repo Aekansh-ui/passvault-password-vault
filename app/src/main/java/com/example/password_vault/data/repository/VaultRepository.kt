@@ -38,7 +38,7 @@ interface VaultRepository {
 
     fun observeDueSoonGroupIds(): Flow<Set<Long>>
 
-    fun generatePassword(): String
+    fun generatePassword(words: String = ""): String
 
     suspend fun exportToJson(): String
     suspend fun importFromJson(json: String): RestoreResult
