@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -19,14 +20,25 @@ class AppPreferences @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val sessionTimeoutKey = longPreferencesKey("session_timeout_ms")
+    private val passwordWordsKey  = stringPreferencesKey("password_words")
 
     val sessionTimeoutMs: Flow<Long> = context.dataStore.data.map { prefs ->
         prefs[sessionTimeoutKey] ?: DEFAULT_SESSION_TIMEOUT_MS
     }
 
+    val passwordWords: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[passwordWordsKey] ?: ""
+    }
+
     suspend fun setSessionTimeoutMs(ms: Long) {
         context.dataStore.edit { prefs ->
             prefs[sessionTimeoutKey] = ms
+        }
+    }
+
+    suspend fun setPasswordWords(words: String) {
+        context.dataStore.edit { prefs ->
+            prefs[passwordWordsKey] = words
         }
     }
 

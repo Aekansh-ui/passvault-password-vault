@@ -189,10 +189,49 @@ class VaultRepositoryImpl @Inject constructor(
             }.map { it.groupId }.toSet()
         }
 
-    override fun generatePassword(): String {
-        val chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*_-+="
+    override fun generatePassword(words: String): String {
         val rng = SecureRandom()
-        return (1..16).map { chars[rng.nextInt(chars.length)] }.joinToString("")
+        val specials = "!@#\$%^&*_-+="
+        val digits = "0123456789"
+        val allChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*_-+="
+
+        if (words.isBlank()) {
+            return (1..16).map { allChars[rng.nextInt(allChars.length)] }.joinToString("")
+        }
+
+        val wordList = words.split(Regex("[,;\\s]+"))
+            .map { it.trim().lowercase() }
+            .filter { it.isNotEmpty() }
+
+        if (wordList.isEmpty()) {
+            return (1..16).map { allChars[rng.nextInt(allChars.length)] }.joinToString("")
+        }
+
+        // Randomly pick exactly 2 distinct words (or 1 if the list has only 1)
+        val idx1 = rng.nextInt(wordList.size)
+        val idx2 = if (wordList.size > 1) (idx1 + 1 + rng.nextInt(wordList.size - 1)) % wordList.size else idx1
+        val selected = listOf(wordList[idx1], wordList[idx2])
+
+        val sb = StringBuilder()
+        for (word in selected) {
+            sb.append(word[0].uppercaseChar())
+            if (word.length > 1) sb.append(word.substring(1))
+        }
+
+        // Insert 2-digit number at a random position
+        val insertPos = if (sb.length > 1) rng.nextInt(sb.length) else 0
+        sb.insert(insertPos, "${digits[rng.nextInt(10)]}${digits[rng.nextInt(10)]}")
+
+        // Append a random special character
+        sb.append(specials[rng.nextInt(specials.length)])
+
+        // Pad to ensure length > 10
+        val alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        while (sb.length <= 10) {
+            sb.append(alphanum[rng.nextInt(alphanum.length)])
+        }
+
+        return sb.toString()
     }
 
     override suspend fun exportToJson(): String {

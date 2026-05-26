@@ -52,6 +52,23 @@
     <string name="save">SAVE</string>
     <string name="coming_soon">Coming soon in v2!</string>
 
+    <!-- Password words generator -->
+    <string name="password_words_label">ADD WORDS FOR PASSWORD</string>
+    <string name="password_words_desc">Words to build memorable, secure generated passwords.</string>
+    <string name="password_words_action">SET WORDS</string>
+    <string name="password_words_dialog_title">Password Words</string>
+    <string name="password_words_dialog_desc">Enter words separated by commas. They\'ll be mixed with numbers and symbols to create a strong password.</string>
+    <string name="password_words_hint">e.g. apple, sunset, river</string>
+
+    <!-- Username / ID change warning -->
+    <string name="username_change_title">Change ID?</string>
+    <string name="username_change_msg">Better create a new entry instead of modifying the ID.</string>
+    <string name="proceed">PROCEED</string>
+
+    <!-- Biometric for password update -->
+    <string name="biometric_update_title">Authenticate to Update</string>
+    <string name="biometric_update_subtitle">Verify your identity before changing the password</string>
+
     <!-- Auth -->
     <string name="biometric_title">Authenticate to Pass Vault</string>
     <string name="biometric_subtitle">Use your biometric or device PIN</string>

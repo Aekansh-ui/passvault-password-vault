@@ -33,12 +33,21 @@ class SettingsViewModel @Inject constructor(
             AppPreferences.DEFAULT_SESSION_TIMEOUT_MS
         )
 
+    val passwordWords: StateFlow<String> = appPreferences.passwordWords
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
     private val _events = MutableSharedFlow<SettingsEvent>()
     val events: SharedFlow<SettingsEvent> = _events
 
     fun setSessionTimeout(ms: Long) {
         viewModelScope.launch {
             appPreferences.setSessionTimeoutMs(ms)
+        }
+    }
+
+    fun setPasswordWords(words: String) {
+        viewModelScope.launch {
+            appPreferences.setPasswordWords(words)
         }
     }
 

@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,6 +41,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -89,10 +91,11 @@ fun AddUpdateScreen(
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
-    val isLoading       by viewModel.isLoading.collectAsState()
-    val reminderEnabled by viewModel.reminderEnabled.collectAsState()
-    val reminderUnit    by viewModel.reminderUnit.collectAsState()
-    val reminderValue   by viewModel.reminderValue.collectAsState()
+    val isLoading                by viewModel.isLoading.collectAsState()
+    val reminderEnabled          by viewModel.reminderEnabled.collectAsState()
+    val reminderUnit             by viewModel.reminderUnit.collectAsState()
+    val reminderValue            by viewModel.reminderValue.collectAsState()
+    val showUsernameWarningDialog by viewModel.showUsernameWarningDialog.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -109,6 +112,38 @@ fun AddUpdateScreen(
                 is FormEvent.Error -> scope.launch { snackbarHostState.showSnackbar(event.msg) }
             }
         }
+    }
+
+    if (isUpdate && showUsernameWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.cancelUsernameChange() },
+            title = {
+                Text(
+                    stringResource(R.string.username_change_title),
+                    fontFamily = SinkinSansFamily
+                )
+            },
+            text = {
+                Text(
+                    stringResource(R.string.username_change_msg),
+                    fontFamily = SinkinSansFamily,
+                    color = TextGrey
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.proceedWithUsernameChange() },
+                    colors = androidx.compose.material3.ButtonDefaults.textButtonColors(contentColor = CoralAccent)
+                ) {
+                    Text(stringResource(R.string.proceed), fontFamily = SinkinSansFamily)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.cancelUsernameChange() }) {
+                    Text(stringResource(R.string.cancel), fontFamily = SinkinSansFamily, color = TextGrey)
+                }
+            }
+        )
     }
 
     Scaffold(

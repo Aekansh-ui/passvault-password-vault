@@ -19,7 +19,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -34,6 +38,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -46,6 +51,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -63,6 +69,7 @@ import com.example.password_vault.ui.theme.SlatePrimary
 import com.example.password_vault.ui.theme.TextGrey
 import com.example.password_vault.ui.viewmodel.SettingsEvent
 import com.example.password_vault.ui.viewmodel.SettingsViewModel
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -88,10 +95,14 @@ fun SettingsScreen(
     val currentTimeoutMs by viewModel.sessionTimeoutMs.collectAsState()
     val currentLabel = TIMEOUT_OPTIONS.firstOrNull { it.first == currentTimeoutMs }?.second
         ?: "5 minutes (default)"
+    val passwordWords by viewModel.passwordWords.collectAsState()
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    var showWordsDialog by remember { mutableStateOf(false) }
+    var wordsInput by remember { mutableStateOf("") }
 
     // Holds generated JSON until the file-creation dialog resolves
     var pendingBackupJson by remember { mutableStateOf<String?>(null) }
@@ -243,7 +254,93 @@ fun SettingsScreen(
                 }
             }
 
+            Spacer(Modifier.height(12.dp))
+
+            // Password words for generator
+            SettingsRow(
+                icon = { Icon(Icons.Default.Password, null, tint = CoralAccent, modifier = Modifier.padding(end = 8.dp)) },
+                label = stringResource(R.string.password_words_label),
+                description = if (passwordWords.isNotBlank()) passwordWords
+                              else stringResource(R.string.password_words_desc)
+            ) {
+                ActionButton(label = stringResource(R.string.password_words_action)) {
+                    wordsInput = passwordWords
+                    showWordsDialog = true
+                }
+            }
+
             Spacer(Modifier.height(24.dp))
+        }
+    }
+
+    if (showWordsDialog) {
+        Dialog(onDismissRequest = { showWordsDialog = false }) {
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text(
+                        stringResource(R.string.password_words_dialog_title),
+                        fontFamily = SinkinSansFamily,
+                        fontSize = 18.sp,
+                        color = SlatePrimary
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.password_words_dialog_desc),
+                        fontFamily = SinkinSansFamily,
+                        fontSize = 12.sp,
+                        color = TextGrey
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = wordsInput,
+                        onValueChange = { wordsInput = it },
+                        placeholder = {
+                            Text(
+                                stringResource(R.string.password_words_hint),
+                                fontFamily = SinkinSansFamily,
+                                color = TextGrey
+                            )
+                        },
+                        singleLine = false,
+                        minLines = 8,
+                        maxLines = Int.MAX_VALUE,
+                        textStyle = TextStyle(fontFamily = SinkinSansFamily, fontSize = 14.sp, color = SlatePrimary),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = CoralAccent,
+                            unfocusedBorderColor = DividerGrey,
+                            focusedTextColor = SlatePrimary,
+                            unfocusedTextColor = SlatePrimary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.End
+                    ) {
+                        TextButton(onClick = { showWordsDialog = false }) {
+                            Text(stringResource(R.string.cancel), fontFamily = SinkinSansFamily, color = TextGrey)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        TextButton(
+                            onClick = {
+                                viewModel.setPasswordWords(wordsInput.trim())
+                                showWordsDialog = false
+                            },
+                            colors = ButtonDefaults.textButtonColors(contentColor = CoralAccent)
+                        ) {
+                            Text(stringResource(R.string.save), fontFamily = SinkinSansFamily)
+                        }
+                    }
+                }
+            }
         }
     }
 }

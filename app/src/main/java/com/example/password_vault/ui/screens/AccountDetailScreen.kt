@@ -318,7 +318,14 @@ fun AccountDetailScreen(
                     }
 
                     Button(
-                        onClick = viewModel::navigateToUpdate,
+                        onClick = {
+                            showBiometricPrompt(
+                                context = context,
+                                title = context.getString(R.string.biometric_update_title),
+                                subtitle = context.getString(R.string.biometric_update_subtitle),
+                                onSuccess = { viewModel.navigateToUpdate() }
+                            )
+                        },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = CoralAccent)

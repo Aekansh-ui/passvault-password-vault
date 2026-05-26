@@ -3,6 +3,7 @@ package com.example.password_vault.ui.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.password_vault.data.preferences.AppPreferences
 import com.example.password_vault.data.repository.AddResult
 import com.example.password_vault.data.repository.VaultRepository
 import com.example.password_vault.domain.model.AccountDetail
@@ -26,6 +27,7 @@ sealed class FormEvent {
 @HiltViewModel
 class AddUpdateViewModel @Inject constructor(
     private val repo: VaultRepository,
+    private val appPreferences: AppPreferences,
     savedState: SavedStateHandle
 ) : ViewModel() {
 
@@ -51,7 +53,14 @@ class AddUpdateViewModel @Inject constructor(
     val reminderUnit    = MutableStateFlow(UNIT_MONTHS)
     val reminderValue   = MutableStateFlow(1)
 
+    private val passwordWords = appPreferences.passwordWords
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
     private var prefilled = false
+    private var originalEmail = ""
+    private var originalPassword = ""
+
+    val showUsernameWarningDialog = MutableStateFlow(false)
 
     private val _events = MutableSharedFlow<FormEvent>()
     val events: SharedFlow<FormEvent> = _events
@@ -65,10 +74,12 @@ class AddUpdateViewModel @Inject constructor(
         reminderEnabled.value = detail.reminderEnabled
         reminderUnit.value    = detail.reminderUnit ?: UNIT_MONTHS
         reminderValue.value   = detail.reminderValue.takeIf { it > 0 } ?: 1
+        originalEmail    = detail.username
+        originalPassword = detail.currentVersion?.password ?: ""
     }
 
     fun generatePassword() {
-        password.value = repo.generatePassword()
+        password.value = repo.generatePassword(passwordWords.value)
     }
 
     fun togglePasswordVisible() {
@@ -76,7 +87,6 @@ class AddUpdateViewModel @Inject constructor(
     }
 
     fun submit() {
-        val urlVal   = url.value.trim()
         val emailVal = email.value.trim()
         val passVal  = password.value
 
@@ -84,6 +94,28 @@ class AddUpdateViewModel @Inject constructor(
             viewModelScope.launch { _events.emit(FormEvent.Error("ID and password are required.")) }
             return
         }
+
+        if (accountId != null && emailVal != originalEmail) {
+            showUsernameWarningDialog.value = true
+            return
+        }
+
+        doSubmit()
+    }
+
+    fun proceedWithUsernameChange() {
+        showUsernameWarningDialog.value = false
+        doSubmit()
+    }
+
+    fun cancelUsernameChange() {
+        showUsernameWarningDialog.value = false
+    }
+
+    private fun doSubmit() {
+        val urlVal   = url.value.trim()
+        val emailVal = email.value.trim()
+        val passVal  = password.value
 
         val resolvedName = if (urlVal.isNotEmpty()) {
             extractSiteNameFromUrl(urlVal).ifEmpty { emailVal }
@@ -103,7 +135,7 @@ class AddUpdateViewModel @Inject constructor(
                         resolvedName, urlVal, emailVal, passVal,
                         remEnabled, remUnit, remValue
                     )) {
-                        is AddResult.Created      -> _events.emit(FormEvent.Success)
+                        is AddResult.Created        -> _events.emit(FormEvent.Success)
                         is AddResult.DuplicateFound -> _events.emit(FormEvent.DuplicateFound(result.accountId))
                     }
                 } else {
