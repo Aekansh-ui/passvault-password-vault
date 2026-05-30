@@ -1,15 +1,35 @@
 *.iml
+
+# Gradle
 .gradle
-/local.properties
+/build
+
+# Local configuration — contains SDK path, never commit
+local.properties
+
+# Android Studio / IntelliJ IDEA — generated/machine-specific files
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/deviceManager.xml
+/.idea/planningMode.xml
+
+# macOS
 .DS_Store
-/build
+
+# Android profiler captures
 /captures
+
+# NDK / CMake
 .externalNativeBuild
 .cxx
-local.properties
+
+# Kotlin compiler session cache
+.kotlin/
+
+# Claude AI conversation history — not project code
+history_claude.txt
