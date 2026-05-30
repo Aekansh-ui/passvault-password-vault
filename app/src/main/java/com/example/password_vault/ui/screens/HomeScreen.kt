@@ -351,7 +351,7 @@ fun PassVaultBottomNav(
         Surface(
             color = NeutralCard,
             shape = RoundedCornerShape(14.dp),
-            shadowElevation = 6.dp,
+            shadowElevation = 0.dp,
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .height(71.dp)

@@ -38,6 +38,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,7 +70,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -78,6 +84,7 @@ import com.example.password_vault.ui.theme.BebasFamily
 import com.example.password_vault.security.showBiometricPrompt
 import com.example.password_vault.ui.theme.CoralAccent
 import com.example.password_vault.ui.theme.DividerGrey
+import com.example.password_vault.ui.theme.NeutralCard
 import com.example.password_vault.ui.theme.SinkinSansFamily
 import com.example.password_vault.ui.theme.SlatePrimary
 import com.example.password_vault.ui.theme.TextGrey
@@ -172,29 +179,42 @@ fun AccountDetailScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 Box {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .border(1.dp, DividerGrey, RoundedCornerShape(20.dp))
-                            .clickable { showVersionMenu = true }
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    Card(
+                        onClick = { showVersionMenu = true },
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = NeutralCard),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
                     ) {
                         val vLabel = displayVersion?.let { "v${it.versionNo}" } ?: "v?"
                         Text(
-                            text = "$vLabel ▼",
+                            text = buildAnnotatedString {
+                                withStyle(SpanStyle(color = SlatePrimary, fontSize = 13.sp)) {
+                                    append("$vLabel  ")
+                                }
+                                withStyle(SpanStyle(color = CoralAccent, fontSize = 16.sp)) {
+                                    append("▼")
+                                }
+                            },
                             fontFamily = SinkinSansFamily,
-                            fontSize = 13.sp,
-                            color = SlatePrimary
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
                         )
                     }
                     DropdownMenu(
                         expanded = showVersionMenu,
-                        onDismissRequest = { showVersionMenu = false }
+                        onDismissRequest = { showVersionMenu = false },
+                        containerColor = NeutralCard
                     ) {
                         d.versions.forEach { version ->
                             DropdownMenuItem(
                                 text = {
-                                    Text("v${version.versionNo}", fontFamily = SinkinSansFamily, fontSize = 14.sp, color = SlatePrimary)
+                                    Text(
+                                        text = "v${version.versionNo}",
+                                        fontFamily = SinkinSansFamily,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = SlatePrimary
+                                    )
                                 },
                                 onClick = {
                                     if (version.id == d.currentVersionId) viewModel.selectLatestVersion()

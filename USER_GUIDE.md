@@ -21,6 +21,7 @@ Pass Vault is an offline-only password manager. Your data never leaves your devi
 11. [Settings](#11-settings)
 12. [Backup & Restore](#12-backup--restore)
 13. [Security Features](#13-security-features)
+14. [About App](#14-about-app)
 
 ---
 
@@ -45,15 +46,15 @@ After authentication you land on the **Home Screen**. This is your main vault vi
 
 - **Groups** — Every website or service you save becomes a group (e.g. "Google", "Netflix"). Groups are listed alphabetically.
 - **Red border on a group card** — Means one or more passwords in that group are due for a change based on your reminder settings.
-- **Search bar** — Filters groups by name in real time.
+- **Search bar** — Filters groups by name in real time. While text is present, a clear (×) button appears inside the bar to reset the search. After the last result, a footer reads **"end of the line."** If nothing matches, a **"NO RESULTS"** illustration is shown.
 
 ### Navigation bar (bottom)
 
 | Button | Action |
 |--------|--------|
 | House icon (left) | Home screen |
-| **+** button (centre) | Add a new password |
-| Person icon (right) | Profile & Settings |
+| **+** button (centre, coral) | Add a new password |
+| Person icon (right) | Profile screen |
 
 ---
 
@@ -65,13 +66,16 @@ Tap the **+** button at the bottom of any screen.
 
 | Field | What to enter |
 |-------|--------------|
-| **URL** | The website address (e.g. `google.com`). Pass Vault extracts the site name automatically to create or find the group. |
+| **URL** | The website address (e.g. `google.com`). Pass Vault extracts the site name automatically from the URL to create or find the group. If no URL is entered, your ID is used as the group name. |
 | **ID** | Your email address or username for that account. |
-| **Password** | Your password. Tap the eye icon to show/hide it. |
+| **Password** | Your password. Tap the eye icon to show/hide it while typing. |
 
 ### Generate a password
 
-Tap **GENERATE NEW** to instantly create a strong 16-character random password. You can tap it multiple times until you like what you see.
+Tap **GENERATE NEW** to instantly create a strong random password. You can tap it multiple times until you like the result.
+
+- **Default mode** — Generates a 16-character password mixing uppercase, lowercase, numbers, and symbols.
+- **Word-based mode** — If you have set custom words in **Settings → Password Words**, the generator uses two of those words combined with numbers and a symbol to build a memorable-but-strong password.
 
 ### Periodic Reminder *(optional)*
 
@@ -101,6 +105,10 @@ From the Home Screen, tap a **group** → tap an **account row** to open the det
 - **Email / Username** — Your login ID
 - **Password** — Hidden by default (shown as dots)
 
+### Version chip (top-right)
+
+A small chip (e.g. **v1 ▼**) in the top-right corner shows the current version. Tap it to switch to an older version — see [Password Version History](#6-password-version-history).
+
 ### Revealing the password
 
 Tap the **eye icon** next to the password field. Your biometric prompt will appear. Authenticate to reveal the password in plain text.
@@ -116,7 +124,7 @@ Tap the **copy icon** next to the password. The password is copied to your clipb
 ## 5. Updating a Password
 
 1. Open the account detail screen
-2. Tap **UPDATE**
+2. Tap **UPDATE** — your biometric prompt will appear; authenticate to proceed
 3. Edit the URL, ID, password, or reminder settings as needed
 4. Tap **SAVE CHANGES**
 
@@ -132,7 +140,7 @@ Pass Vault keeps up to **10 previous versions** of each password. This lets you 
 
 On the account detail screen, tap the version chip in the top-right corner (e.g. **v3 ▼**). A dropdown lists all saved versions. Tap any version to view it.
 
-> The **Update** and **Delete** buttons are only shown when you are viewing the latest (current) version.
+> The **Update** and **Delete** buttons are only shown when you are viewing the latest (current) version. Historical versions are read-only.
 
 ---
 
@@ -153,14 +161,14 @@ On the account detail screen, tap the version chip in the top-right corner (e.g.
 
 Groups are created and managed automatically — you don't create them manually.
 
-- When you **add** a password, Pass Vault uses the site name from the URL (or your ID if no URL is given) as the group name
+- When you **add** a password, Pass Vault extracts the site name from the URL (or uses your ID if no URL is given) as the group name
 - When you **delete** all accounts in a group, the group disappears
 - Tapping a group on the Home Screen shows all accounts inside it
 - Each group screen has its own **search bar** to filter accounts by username
 
 ### Adding a password to an existing group
 
-When adding a new password, enter the same site name (or URL for the same site) as an existing group. Pass Vault will place the new account inside that existing group.
+When adding a new password, enter a URL for the same site as an existing group. Pass Vault will place the new account inside that existing group.
 
 ---
 
@@ -176,26 +184,34 @@ If you set a reminder on a password, Pass Vault will notify you when it is time 
 
 ### Changing or disabling a reminder
 
-Open the account → tap **UPDATE** → scroll to **Periodic Reminder** → switch to **NO** (or change the value) → tap **SAVE CHANGES**.
+Open the account → tap **UPDATE** → authenticate → scroll to **Periodic Reminder** → switch to **NO** (or change the value) → tap **SAVE CHANGES**.
 
 ---
 
 ## 10. Profile
 
-Tap the **person icon** at the bottom right to open your profile.
+Tap the **person icon** at the bottom right to open the Profile screen.
 
 ### Profile screen
 
-Displays your name, username, and profile photo (if set).
+Displays your name, username, and profile photo (if set). Three menu items are available:
 
-### Updating your profile
+| Menu item | What it does |
+|-----------|-------------|
+| **Update Profile** | Opens the Edit Profile screen to change your display name and photo |
+| **Settings** | Opens the Settings screen (session timeout, backup/restore, password words) |
+| **About App** | Opens the in-app user guide |
 
-Tap **Update Profile** to edit:
-- **Display Name** — Your name shown on the profile screen
-- **Username** — A label or handle for yourself
-- **Profile Photo** — Tap the photo area to pick an image from your gallery
+The app version is shown at the very bottom of the screen.
 
-Tap **SAVE** when done.
+### Editing your profile
+
+Tap **Update Profile** to open the Edit Profile screen:
+
+- **Profile Photo** — Tap the photo to pick an image from your gallery. Tap **Change Picture** below the photo to open the picker.
+- **Name** — Your display name shown on the profile screen.
+
+Tap **SAVE** to save changes or **CANCEL** to discard and go back.
 
 ---
 
@@ -217,6 +233,15 @@ Controls how long Pass Vault waits before locking itself when you are idle.
 | 30 minutes | Locks after 30 minutes of no interaction |
 
 The timer runs even when you switch to another app. When you return after the timeout period, you will be taken to the lock screen and must authenticate again.
+
+### Password Words
+
+Lets you provide a personal word list that the **GENERATE NEW** button uses when building passwords.
+
+- Tap **SET WORDS** to open the word editor
+- Enter any words separated by spaces, commas, or new lines (e.g. `apple tiger ocean sunrise`)
+- Pass Vault picks two words at random, capitalises them, inserts a 2-digit number, and appends a special character — creating a password that is both strong and easier to remember
+- Leave the list empty to use the default fully-random 16-character generator
 
 ---
 
@@ -251,6 +276,8 @@ Pass Vault is built with several layers of protection.
 | **Encrypted database** | All data is stored using SQLCipher. The database key is generated randomly and stored in Android's encrypted key store — it cannot be read without your device credentials. |
 | **Biometric gate on launch** | The app cannot be opened without fingerprint, face, or PIN authentication. |
 | **Biometric gate on password reveal** | Even after you are inside the app, revealing a password requires a second biometric check. |
+| **Biometric gate on update** | Tapping UPDATE on the account detail screen requires biometric authentication before the edit form opens. |
+| **Biometric gate on export** | Exporting a backup requires biometric authentication before the file is written. |
 | **Session timeout** | The app auto-locks after a configurable idle period (even in background). |
 | **Screenshot protection** | The password detail screen blocks screenshots and is hidden in the Recent Apps view. |
 | **Clipboard auto-clear** | Copied passwords are erased from the clipboard after 30 seconds. |
@@ -259,12 +286,19 @@ Pass Vault is built with several layers of protection.
 
 ---
 
+## 14. About App
+
+Tap the **person icon** → **About App** to open the in-app guide. The guide loads locally with no internet connection required.
+
+---
+
 ## Tips
 
 - **Lost your passwords?** If you change or reset your device without making a backup first, your vault data is gone — there is no recovery mechanism. **Export a backup regularly.**
 - **Backup file security** — The JSON file is not encrypted on its own. If you share the file or store it in cloud storage, make sure access is protected.
-- **Password generator** — The built-in generator creates 16-character passwords mixing uppercase, lowercase, numbers, and symbols. Use it whenever you create or update an account.
+- **Password generator** — Use the word list in Settings to create passwords that are easier to type but still strong. Leave it blank for fully random 16-character passwords.
 - **Reminder timing** — Set reminders based on how sensitive an account is. Banking passwords: 1–3 months. Less critical accounts: 6–12 months.
+- **Red border** — A red border on a group or account card means a reminder is due within 5 days. Tap the account, update the password, and the border clears automatically.
 
 ---
 
